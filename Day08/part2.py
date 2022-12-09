@@ -34,23 +34,24 @@ def getVisibleFromLine(line, reverse=False):
   return visible
 
 
-def getVisibilityScoreAlongAxis(line, index, reverse=True):
+def getVisibilityScoreAlongAxis(line, index, reverse=False):
   count = 1
   houseHeight = int(line[index])
   blocked = False
 
   if reverse:
     index = getReverseIndex(index, len(line))
+    line = line[::-1]
   
   while index + count < len(line) and not blocked:
-    height = int(line[index])
+    height = int(line[index + count])
 
     if height >= houseHeight:
       blocked = True 
 
     count += 1
 
-  return count
+  return count - 1
 
 def getVisibleFromLines(lines, reverseCoords=False):
   visible = []
@@ -69,8 +70,19 @@ def getVisibleFromLines(lines, reverseCoords=False):
   
   return visible
 
+def getScenicScore(horizontalLines, verticalLines, coord):
+  x = coord.x
+  y = coord.y
+
+  scenicScore = getVisibilityScoreAlongAxis(horizontalLines[y], x)
+  scenicScore *= getVisibilityScoreAlongAxis(horizontalLines[y], x, True)
+  scenicScore *= getVisibilityScoreAlongAxis(verticalLines[x], y)
+  scenicScore *= getVisibilityScoreAlongAxis(verticalLines[x], y, True)
+
+  return scenicScore
+
 def main():
-  file = open('/Users/dkavalchek/codingProjects/AdventOfCode2022/Day08/testInput.txt')
+  file = open('/Users/dkavalchek/codingProjects/AdventOfCode2022/Day08/input.txt')
   visible = {}
   verticalLines = []
   horizontalLines = []
@@ -90,14 +102,24 @@ def main():
 
     y += 1 
 
+  file.close()
   coords = getVisibleFromLines(horizontalLines)
   coords.extend(getVisibleFromLines(verticalLines, True))
 
   for coord in coords:
     visible[coord] = True
   
-  file.close()
-  print(len(visible))
+  maxX = len(verticalLines) - 1
+  maxY = len(horizontalLines) - 1
+  maxScenicScore = 0
+
+  for x in range(1, maxX):
+    for y in range(1, maxY):
+      scenicScore = getScenicScore(horizontalLines, verticalLines, Coord(x, y))
+      if scenicScore > maxScenicScore:
+        maxScenicScore = scenicScore
+  
+  print(maxScenicScore)
 
 if __name__ == '__main__':
   main()
