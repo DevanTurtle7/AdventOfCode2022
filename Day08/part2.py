@@ -52,6 +52,23 @@ def getVisibilityScoreAlongAxis(line, index, reverse=True):
 
   return count
 
+def getVisibleFromLines(lines, reverseCoords=False):
+  visible = []
+
+  for x in range(0, len(lines)):
+    line = lines[x]
+
+    for i in range(0, 2):
+      visibleFromLine = getVisibleFromLine(line, i % 2 == 0) 
+
+      for y in visibleFromLine:
+        if not reverseCoords:
+          visible.append(Coord(x, y))
+        else:
+          visible.append(Coord(y, x))
+  
+  return visible
+
 def main():
   file = open('/Users/dkavalchek/codingProjects/AdventOfCode2022/Day08/testInput.txt')
   visible = {}
@@ -73,20 +90,11 @@ def main():
 
     y += 1 
 
-  for y in range(0, len(horizontalLines)):
-    line = horizontalLines[y]
-    for i in range(0, 2):
-      visibleFromLine = getVisibleFromLine(line, i % 2 == 0) 
-      for x in visibleFromLine:
-        visible[Coord(x, y)] = True
+  coords = getVisibleFromLines(horizontalLines)
+  coords.extend(getVisibleFromLines(verticalLines, True))
 
-  for x in range(0, len(verticalLines)):
-    line = verticalLines[x]
-
-    for i in range(0, 2):
-      visibleFromLine = getVisibleFromLine(line, i % 2 == 0) 
-      for y in visibleFromLine:
-        visible[Coord(x, y)] = True
+  for coord in coords:
+    visible[coord] = True
   
   file.close()
   print(len(visible))
