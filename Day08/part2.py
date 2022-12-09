@@ -57,7 +57,7 @@ def main():
   visible = {}
   verticalLines = []
   horizontalLines = []
-  first = True
+  y = 0
 
   for line in file:
     line = line.strip()
@@ -66,11 +66,12 @@ def main():
     for x in range(0, len(line)):
       height = line[x]
 
-      if first:
-        first = False
+      if y == 0:
         verticalLines.append(height)
       else:
         verticalLines[x] = verticalLines[x] + height 
+
+    y += 1 
 
   for y in range(0, len(horizontalLines)):
     line = horizontalLines[y]
