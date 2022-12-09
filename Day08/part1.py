@@ -1,74 +1,71 @@
 
-class Tree:
-  def __init__(self, height, x, y, grid):
-    self.height = height
+class Coord:
+  def __init__(self, x, y):
     self.x = x
     self.y = y
-    self.grid = grid
-    self.visible = None
+
+  def __hash__(self):
+    return self.x ** self.y
   
-  def findIsVisible(self):
-    gridHeight = len(self.grid);
-    gridWidth = len(self.grid[0])
+  def __eq__(self, other):
+    return self.x == other.x and self.y == other.y
 
-    if self.x == gridWidth-1 or self.x == 0 or self.y == gridHeight-1 or self.y == 0:
-      print('I am an edge tree')
-      self.visible = True
-      return True
-    else:
-      coords = [[0, 1], [0, -1], [1, 0], [-1, 0]]
 
-      for coord in coords:
-        x = coord[0]
-        y = coord[1]
+def getVisibleFromLine(line, reverse=False):
+  visible = []
 
-        tree = self.grid[y][x]
-        treeVisible = tree.visible 
+  if reverse:
+    line = line[::-1]
 
-        if treeVisible == None:
-          treeVisible = tree.findIsVisible()
-        
-        if treeVisible and self.height > tree.height:
-          print(self.x + x, self.y + y, ' I am bigger and they are visible')
-          self.visible = True
-          return True
-      
-      self.visible = False
-      return False
+  maxUntilNow = -1
+
+  for i in range(0, len(line)):
+    height = int(line[i])
+
+    if height > maxUntilNow:
+      if reverse:
+        visible.append(len(line) - (i + 1))
+      else:
+        visible.append(i)
+      maxUntilNow = height
+  
+  return visible
+
 
 def main():
-  file = open('/Users/dkavalchek/codingProjects/AdventOfCode2022/Day08/testInput.txt')
-
-  grid = []
+  file = open('/Users/dkavalchek/codingProjects/AdventOfCode2022/Day08/input.txt')
+  visible = set()
+  verticalLines = []
   y = 0
 
   for line in file:
-    row = []
     line = line.strip()
+    
     for x in range(0, len(line)):
-      height = int(line[x])
-      row.append(Tree(height, x, y, grid))
+      height = line[x]
 
-    grid.append(row)
+      if y == 0:
+        verticalLines.append(height)
+      else:
+        verticalLines[x] = verticalLines[x] + height 
+
+    for i in range(0, 2):
+      visibleFromLine = getVisibleFromLine(line, i % 2 == 0) 
+      for x in visibleFromLine:
+        visible.add(Coord(x, y))
+
     y += 1
 
-  file.close()
-  gridHeight = len(grid);
-  gridWidth = len(grid[0])
-  count = 0
+  for x in range(0, len(verticalLines)):
+    line = verticalLines[x]
 
-  for y in range(0, gridHeight):
-    for x in range(0, gridWidth):
-      tree = grid[y][x]
-      treeVisible = tree.visible
-      
-      if treeVisible == None:
-        treeVisible = tree.findIsVisible()
-      
-      if treeVisible:
-        count += 1
+    for i in range(0, 2):
+      visibleFromLine = getVisibleFromLine(line, i % 2 == 0) 
+      for y in visibleFromLine:
+        visible.add(Coord(x, y))
   
-  print(count)
+  file.close()
+  print(len(visible))
 
 if __name__ == '__main__':
   main()
