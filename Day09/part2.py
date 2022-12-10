@@ -88,35 +88,35 @@ def main():
       while i < ROPE_LENGTH:
         knot = rope[i]
         prevRope.append(knot.clone())
-        #print()
+        print()
 
         if i > 0:
           prevKnotPosition = rope[i-1]
           distance = prevKnotPosition.distance(knot)
 
           needsMoved = distance > 2 or (distance == 2 and prevKnotPosition.onSameAxis(knot))
-          #print(i, knot, needsMoved)
+          print(i, knot, needsMoved)
 
-          if not knot.onSameAxis(prevKnotPosition) and needsMoved:
+          if not knot.onSameAxis(prevKnotPosition) and needsMoved and knot != prevRope[i-1]:
             knotI = i
             knot.x = prevRope[i-1].x
             knot.y = prevRope[i-1].y
             xChange = knot.x - prevRope[i].x
             yChange = knot.y - prevRope[i].y
 
-            #print('head', i, knot)
+            print('head', i, knot)
 
             if i < ROPE_LENGTH - 1:
               i += 1
               while i < ROPE_LENGTH:
                 current = rope[i]
-                prevRope.append(current.clone())
                 prevKnotPosition = rope[i-1]
                 distance = prevKnotPosition.distance(current)
                 needsMoved = distance > 2 or (distance == 2 and prevKnotPosition.onSameAxis(current))
 
                 if current.onSameAxis(prevRope[knotI]) and current != prevRope[i-1] and needsMoved:
-                  #print('moving', i, current)
+                  prevRope.append(current.clone())
+                  print('moving', i, current)
                   current.x += xChange
                   current.y += yChange
                 else:
@@ -130,7 +130,7 @@ def main():
             distance = prevKnot.distance(knot)
 
             if distance > 2 or (distance == 2 and prevKnot.onSameAxis(knot)):
-              #print('bumping', i, knot)
+              print('bumping', i, knot)
               knot.bump(direction)
         else:
           knot.bump(direction)
@@ -140,8 +140,9 @@ def main():
         
         i += 1
         
-      #print(rope)
-    printGrid(rope)
+      printGrid(rope)
+      print(prevRope)
+      print(rope)
 
   file.close()
   print(len(visited))
