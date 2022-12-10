@@ -42,7 +42,7 @@ def main():
   visited = set()
   visited.add(rope[-1])
 
-  file = open('testInput.txt')
+  file = open('testInput2.txt')
 
   for line in file:
     tokens = line.strip().split(' ')
