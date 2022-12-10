@@ -33,6 +33,36 @@ class Coord:
   def __repr__(self):
     return '(' + str(self.x) + ', ' + str(self.y) + ')'
 
+def printGrid(rope):
+  width = 40
+  height = 40
+  grid = []
+
+  for _ in range(0, height):
+    row =[]
+    for _ in range(0, width):
+      row.append(None)
+    grid.append(row)
+
+  for i in range(len(rope) - 1, -1, -1):
+    knot = rope[i]
+    grid[-knot.y + (height // 2)][knot.x + (width // 2)] = i
+  
+  string = '\n\n\n'
+
+  for row in grid:
+    for item in row:
+      if item == None:
+        string += '.'
+      elif item == 0:
+        string += 'H'
+      else:
+        string += str(item)
+    
+    string += '\n'
+  
+  print(string)
+
 def main():
   rope = []
 
@@ -50,7 +80,6 @@ def main():
     numMoves = int(tokens[1])
 
     for _ in range(0, numMoves):
-      print('\n')
       prevRope = []
       i = 0
 
@@ -63,7 +92,7 @@ def main():
           distance = prevKnotPosition.distance(knot)
 
           needsMoved = distance > 2 or (distance == 2 and prevKnotPosition.onSameAxis(knot))
-          print(knot, needsMoved)
+          #print(knot, needsMoved)
 
           if not knot.onSameAxis(prevKnotPosition) and needsMoved:
             knotI = i
@@ -72,7 +101,7 @@ def main():
             xChange = knot.x - prevRope[i].x
             yChange = knot.y - prevRope[i].y
 
-            print('head', knot)
+            #print('head', knot)
 
             if i < ROPE_LENGTH - 1:
               i += 1
@@ -81,7 +110,7 @@ def main():
                 prevRope.append(current.clone())
 
                 if current.onSameAxis(prevRope[knotI]) and current != prevRope[i-1]:
-                  print('moving', current)
+                  #print('moving', current)
                   current.x += xChange
                   current.y += yChange
                 else:
@@ -95,7 +124,7 @@ def main():
             distance = prevKnot.distance(knot)
 
             if distance > 2 or (distance == 2 and prevKnot.onSameAxis(knot)):
-              print('bumping', knot)
+              #print('bumping', knot)
               knot.bump(direction)
         else:
           knot.bump(direction)
@@ -105,7 +134,8 @@ def main():
         
         i += 1
         
-      print(rope)
+      #print(rope)
+      printGrid(rope)
 
   file.close()
   print(len(visited))
