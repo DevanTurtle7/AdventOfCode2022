@@ -19,7 +19,7 @@ class Coord:
       self.y -= 1
 
   def distance(self, coord2):
-    return ((self.x - coord2.x) ** 2) + ((self.y - coord2.y) ** 2) ** (1/2)
+    return (((self.x - coord2.x) ** 2) + ((self.y - coord2.y) ** 2)) ** (1/2)
   
   def onSameAxis(self, other):
     return (self.x - other.x == 0) ^ (self.y - other.y == 0)
