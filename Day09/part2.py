@@ -19,10 +19,26 @@ class Coord:
       self.y -= 1
 
   def distance(self, coord2):
-    return (((self.x - coord2.x) ** 2) + ((self.y - coord2.y) ** 2)) ** (1/2)
+    diffX = abs(self.x - coord2.x)
+    diffY = abs(self.y - coord2.y)
+
+    if diffX == 1 and diffY == 1:
+      return 1
+
+    return ((diffX ** 2) + (diffY ** 2)) ** (1/2)
   
   def onSameAxis(self, other):
     return (self.x - other.x == 0) ^ (self.y - other.y == 0)
+  
+  def copy(self, coord):
+    self.x = coord.x
+    self.y = coord.y
+  
+  def diagFrom(self, coord):
+    diffX = abs(self.x - coord.x)
+    diffY = abs(self.y - coord.y)
+
+    return diffX == 1 and diffY == 1
   
   def __hash__(self):
     return self.x ** (self.y ** 2)
@@ -86,77 +102,48 @@ def main():
     tokens = line.strip().split(' ')
     direction = tokens[0]
     numMoves = int(tokens[1])
+    lastKnot = None
+    lastKnotPrev = None
 
     for _ in range(0, numMoves):
-      prevRope = []
       i = 0
 
       while i < ROPE_LENGTH:
         knot = rope[i]
-        prevRope.append(knot.clone())
-        #print()
+        knotClone = knot.clone()
 
-        if i > 0:
-          prevKnotPosition = rope[i-1]
-          distance = prevKnotPosition.distance(knot)
-
-          needsMovedTowardsSection = (distance == 2 and prevKnotPosition.onSameAxis(knot))
-          needsMoved = distance > 2 or needsMovedTowardsSection
-          #print(i, knot, prevKnotPosition, needsMoved)
-          #print(not knot.onSameAxis(prevKnotPosition), needsMoved, knot != prevRope[i-1])
-
-          if not knot.onSameAxis(prevKnotPosition) and needsMoved and knot != prevRope[i-1]:
-            knotI = i
-            knot.x = prevRope[i-1].x
-            knot.y = prevRope[i-1].y
-            xChange = knot.x - prevRope[i].x
-            yChange = knot.y - prevRope[i].y
-
-            #print('head', i, knot)
-
-            if i < ROPE_LENGTH - 1:
-              i += 1
-              while i < ROPE_LENGTH:
-                current = rope[i]
-                prevKnotPosition = rope[i-1]
-                distance = prevKnotPosition.distance(current)
-                needsMoved = distance > 2 or (distance == 2 and prevKnotPosition.onSameAxis(current))
-
-                if current.onSameAxis(prevRope[knotI]) and current != prevRope[i-1] and needsMoved:
-                  prevRope.append(current.clone())
-                  #print('moving', i, current)
-                  current.x += xChange
-                  current.y += yChange
-                else:
-                  i -= 1
-                  break
-
-                i += 1
-
-          else:
-            if needsMoved:
-              if needsMovedTowardsSection:
-                xChange = (prevKnotPosition.x - knot.x) // 2
-                yChange = (prevKnotPosition.y - knot.y) // 2
-
-                knot.x += xChange
-                knot.y += yChange
-              else:
-                #print('bumping', i, knot)
-                knot.bump(direction)
-        else:
+        if i == 0:
           knot.bump(direction)
-        
+        else:
+          if knot.distance(lastKnot) > 1:
+            if lastKnot.diagFrom(lastKnotPrev):
+              if lastKnot.onSameAxis(knot):
+                xDiff = lastKnot.x - knot.x
+                yDiff = lastKnot.y - knot.y
+                knot.x += (xDiff // 2)
+                knot.y += (yDiff // 2)
+              else:
+                xDiff = lastKnot.x - lastKnotPrev.x
+                yDiff = lastKnot.y - lastKnotPrev.y
+                knot.x += xDiff
+                knot.y += yDiff
+            else:
+              knot.copy(lastKnotPrev)
+          #else:
+            #print(i, 'other')
         
         i += 1
+        lastKnot = knot 
+        lastKnotPrev = knotClone
 
       visited.add(rope[ROPE_LENGTH-1].clone())
         
-      #printGrid(rope)
+    #printGrid(rope)
+      #print(rope)
 
   file.close()
   print(len(visited))
-  print(visited)
+  #print(visited)
 
 
 if __name__ == "__main__":
