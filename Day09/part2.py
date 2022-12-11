@@ -34,10 +34,14 @@ class Coord:
     return '(' + str(self.x) + ', ' + str(self.y) + ')'
 
 def printGrid(rope):
-  width = 40
-  height = 40
-  xOffset = 20
-  yOffset = 20 
+  width = 26 
+  height = 21
+  xOffset = 11
+  yOffset = 5
+  #width = 6
+  #height = 5
+  #xOffset = 0
+  #yOffset = 0
   grid = []
 
   for _ in range(0, height):
@@ -76,7 +80,7 @@ def main():
   visited = set()
   visited.add(rope[-1].clone())
 
-  file = open('testInput2.txt')
+  file = open('input.txt')
 
   for line in file:
     tokens = line.strip().split(' ')
@@ -143,15 +147,16 @@ def main():
         else:
           knot.bump(direction)
         
-        if i == ROPE_LENGTH - 1:
-          visited.add(rope[i].clone())
         
         i += 1
+
+      visited.add(rope[ROPE_LENGTH-1].clone())
         
-    #printGrid(rope)
+      #printGrid(rope)
 
   file.close()
   print(len(visited))
+  print(visited)
 
 
 if __name__ == "__main__":
