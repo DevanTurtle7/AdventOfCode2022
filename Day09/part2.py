@@ -45,6 +45,8 @@ def printGrid(rope):
     for _ in range(0, width):
       row.append(None)
     grid.append(row)
+  
+  grid[height - (0 + yOffset + 1)][0 + xOffset] = 's'
 
   for i in range(len(rope) - 1, -1, -1):
     knot = rope[i]
@@ -88,14 +90,16 @@ def main():
       while i < ROPE_LENGTH:
         knot = rope[i]
         prevRope.append(knot.clone())
-        print()
+        #print()
 
         if i > 0:
           prevKnotPosition = rope[i-1]
           distance = prevKnotPosition.distance(knot)
 
-          needsMoved = distance > 2 or (distance == 2 and prevKnotPosition.onSameAxis(knot))
-          print(i, knot, needsMoved)
+          needsMovedTowardsSection = (distance == 2 and prevKnotPosition.onSameAxis(knot))
+          needsMoved = distance > 2 or needsMovedTowardsSection
+          #print(i, knot, prevKnotPosition, needsMoved)
+          #print(not knot.onSameAxis(prevKnotPosition), needsMoved, knot != prevRope[i-1])
 
           if not knot.onSameAxis(prevKnotPosition) and needsMoved and knot != prevRope[i-1]:
             knotI = i
@@ -104,7 +108,7 @@ def main():
             xChange = knot.x - prevRope[i].x
             yChange = knot.y - prevRope[i].y
 
-            print('head', i, knot)
+            #print('head', i, knot)
 
             if i < ROPE_LENGTH - 1:
               i += 1
@@ -116,7 +120,7 @@ def main():
 
                 if current.onSameAxis(prevRope[knotI]) and current != prevRope[i-1] and needsMoved:
                   prevRope.append(current.clone())
-                  print('moving', i, current)
+                  #print('moving', i, current)
                   current.x += xChange
                   current.y += yChange
                 else:
@@ -126,12 +130,16 @@ def main():
                 i += 1
 
           else:
-            prevKnot = rope[i-1]
-            distance = prevKnot.distance(knot)
+            if needsMoved:
+              if needsMovedTowardsSection:
+                xChange = (prevKnotPosition.x - knot.x) // 2
+                yChange = (prevKnotPosition.y - knot.y) // 2
 
-            if distance > 2 or (distance == 2 and prevKnot.onSameAxis(knot)):
-              print('bumping', i, knot)
-              knot.bump(direction)
+                knot.x += xChange
+                knot.y += yChange
+              else:
+                #print('bumping', i, knot)
+                knot.bump(direction)
         else:
           knot.bump(direction)
         
@@ -140,9 +148,7 @@ def main():
         
         i += 1
         
-      printGrid(rope)
-      print(prevRope)
-      print(rope)
+    #printGrid(rope)
 
   file.close()
   print(len(visited))
