@@ -69,7 +69,7 @@ def main():
       file.readline()
       first = file.readline()
 
-  for x in range(0, NUM_ROUNDS):
+  for _ in range(0, NUM_ROUNDS):
     for monkey in monkeys:
       while len(monkey.items) > 0:
         [index, item] = monkey.inspect()
