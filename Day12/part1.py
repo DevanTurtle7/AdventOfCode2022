@@ -1,58 +1,47 @@
 ASCII_OFFSET = 97
 
 class Node:
-  def __init__(self, elevation, end, x, y):
+  def __init__(self, elevation, end, x, y, char):
     self.elevation = elevation
     self.end = end
     self.x = x
     self.y = y
+    self.char = char
     self.minDistance = None
   
   def __hash__(self):
-    return self.x ** (self.y ** 2)
+    return hash(str(self.x) + ',' + str(self.y))
   
   def __eq__(self, other):
     return self.x == other.x and self.y == other.y
+  
+  def __lt__(self, other):
+    return self.minDistance < other.minDistance
 
   def __repr__(self):
-    return str(self.minDistance)
+    return 'Node (minDistance: ' + str(self.minDistance) + ', x: ' + str(self.x) + ', y: ' + str(self. y) + ', char: ' + self.char + ')'
 
-class NodePriorityQueue:
-  def __init__(self):
-    self.items = []
+def getNeighbors(grid, x, y):
+  maxY = len(grid)
+  maxX = len(grid[0])
+  coords = [[0, 1], [0, -1], [1, 0], [-1, 0]]
+  neighbors = []
+
+  for coord in coords:
+    newX = x + coord[0]
+    newY = y + coord[1]
+
+    if newX >= 0 and newX < maxX and newY >= 0 and newY < maxY:
+      neighbors.append(grid[newY][newX])
   
-  def insert(self, item):
-    # Insert reversed
-    upperBound = len(self.items)
-    lowerBound = 0
-
-    while upperBound - lowerBound > 1 and upperBound > lowerBound:
-      diff = upperBound - lowerBound
-      midIndex = lowerBound + (diff // 2)
-      midPoint = self.items[midIndex].minDistance
-
-      if midPoint == item.minDistance:
-        self.items.insert(midIndex, item)
-        break;
-      elif midPoint > item.minDistance:
-        lowerBound = midPoint
-      else:
-        upperBound = midPoint
-    
-    print(upperBound, lowerBound, self.items, item.minDistance)
-    self.items.insert(upperBound, item)
-  
-  def pop(self):
-    return self.items.pop()
+  return neighbors
 
 def main():
   grid = []
-  startX = None
-  startY = None
-
-  file = open('input.txt')
   y = 0
   startNode = None
+  endNode = None
+  file = open('/Users/dkavalchek/codingProjects/AdventOfCode2022/Day12/input.txt')
 
   for line in file:
     row = []
@@ -61,42 +50,41 @@ def main():
       char = line[x]
 
       if char == 'E':
-        row.append(Node(0, True, x, y))
+        endNode = Node(ord('z') - ASCII_OFFSET, True, x, y, char)
+        row.append(endNode)
       elif char == 'S':
-        node = Node(0, False, x, y)
+        node = Node(0, False, x, y, char)
         startNode = node
+        startNode.minDistance = 0
         row.append(node)
       else:
-        row.append(Node(ord(char) - ASCII_OFFSET, False, x, y))
+        row.append(Node(ord(char) - ASCII_OFFSET, False, x, y, char))
 
     y += 1
     grid.append(row)
 
   file.close()
-  endReached = False
-  queue = NodePriorityQueue()
   visited = set([startNode])
-  queue.insert(startNode)
-  maxWidth = len(grid[0])
-  maxHeight = len(grid)
+  queue = [startNode]
 
-  while not endReached:
-    current = queue.pop()
-    neighborCoords = [[0, 1], [1, 0], [0, -1], [-1, 0]]
+  while len(queue) > 0:
+    queue.sort()
+    node = queue.pop(0)
+    neighbors = getNeighbors(grid, node.x, node.y)
 
-    for coords in neighborCoords:
-      x = current.x + coords[0]
-      y = current.y + coords[1]
-      print(x, y)
-      if x > 0 and y > 0 and x < maxWidth and y < maxHeight:
-        node = grid[y][x]
+    for neighbor in neighbors:
+      elevationDiff = neighbor.elevation - node.elevation
+      currentDistance = node.minDistance + 1
 
-        if node not in visited:
-          elevationDiff = abs(node.elevation - current.elevation)
-          if elevationDiff <= 1 and (node.minDistance == None or node.minDistance < elevationDiff):
-            node.minDistance = elevationDiff
-            queue.insert(node)
-            visited.add(node)
+      if elevationDiff <= 1:
+        if neighbor.minDistance == None or neighbor.minDistance > currentDistance:
+          neighbor.minDistance = currentDistance
+          queue.append(neighbor)
+
+        if neighbor not in visited:
+          visited.add(neighbor)
+  
+  print(endNode)
 
 
 if __name__ == '__main__':
