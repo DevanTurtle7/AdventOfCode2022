@@ -69,19 +69,25 @@ def compareLists(leftList, rightList):
     return ordered
 
 def main():
-  with open('testInput.txt') as file:
+  total = 0
+
+  with open('input.txt') as file:
     eof = False
+    count = 1
 
     while not eof:
       leftPacket = parseLine(file.readline())
       rightPacket = parseLine(file.readline())
 
-      print(leftPacket)
-      print(rightPacket)
-      print(compareLists(leftPacket, rightPacket))
+      if compareLists(leftPacket, rightPacket):
+        total += count
 
       if file.readline() == '':
         eof = True
+      else:
+        count += 1
+  
+  print(total)
 
 if __name__ == '__main__':
   main()
